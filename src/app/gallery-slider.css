@@ -1,0 +1,145 @@
+'use client';
+
+import * as React from 'react';
+import Image from 'next/image';
+import { useState, useEffect, useCallback } from 'react';
+import { Skeleton } from '../ui/skeleton';
+import { ScrollAnimationWrapper } from '../ui/scroll-animation-wrapper';
+import './gallery-slider.css';
+
+type GalleryImage = {
+  src: string;
+  alt: string;
+  hint: string;
+};
+
+export function WorksGallery() {
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [checked, setChecked] = useState('slide1');
+
+  const fetchGalleryImages = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/settings');
+      if (!response.ok) {
+        throw new Error(`API call failed with status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data.success && Array.isArray(data.gallery_images)) {
+        const images = data.gallery_images.slice(0, 4).map((url: string, index: number) => ({
+          src: url,
+          alt: `Gallery image ${index + 1}`,
+          hint: `gallery image ${index + 1}`,
+        }));
+        setGalleryImages(images);
+      } else {
+        setGalleryImages([]);
+      }
+    } catch (error) {
+      console.error('Failed to fetch gallery images:', error);
+      setGalleryImages([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchGalleryImages();
+  }, [fetchGalleryImages]);
+  
+  useEffect(() => {
+    if (galleryImages.length === 0) return;
+    const timer = setInterval(() => {
+      setChecked(prev => {
+        const currentNum = parseInt(prev.replace('slide', ''));
+        const nextNum = (currentNum % galleryImages.length) + 1;
+        return `slide${nextNum}`;
+      });
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [galleryImages.length]);
+
+
+  if (isLoading) {
+    return (
+      <section className="bg-background-dark py-12" id="work">
+        <div className="container mx-auto px-4">
+          <ScrollAnimationWrapper>
+            <h2 className="text-3xl font-bold text-white mb-8 text-center">أعمالنا الأخيرة</h2>
+          </ScrollAnimationWrapper>
+          <Skeleton className="w-full h-[60vh] rounded-2xl" />
+        </div>
+      </section>
+    );
+  }
+
+  if (galleryImages.length === 0) {
+    return (
+       <section className="bg-background-dark py-12" id="work">
+        <div className="container mx-auto px-4">
+          <ScrollAnimationWrapper>
+            <h2 className="text-3xl font-bold text-white mb-8 text-center">أعمالنا الأخيرة</h2>
+          </ScrollAnimationWrapper>
+          <div className="w-full h-60 flex items-center justify-center bg-surface-dark rounded-2xl">
+            <p className="text-gray-400">لم يتم إضافة صور للمعرض بعد.</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="bg-background-dark py-12" id="work">
+      <div className="container mx-auto px-4">
+        <ScrollAnimationWrapper>
+          <h2 className="text-3xl font-bold text-white mb-8 text-center">أعمالنا الأخيرة</h2>
+        </ScrollAnimationWrapper>
+        <ScrollAnimationWrapper>
+          <div className="wrapper">
+            {galleryImages.map((_, index) => (
+              <input
+                key={`input-${index}`}
+                type="radio"
+                name="slider"
+                id={`slide${index + 1}`}
+                checked={checked === `slide${index + 1}`}
+                onChange={() => setChecked(`slide${index + 1}`)}
+              />
+            ))}
+
+            <div className="slider-wrapper">
+              <div className="inner" style={{ width: `${galleryImages.length * 100}%` }}>
+                {galleryImages.map((image, index) => (
+                  <article key={`article-${index}`}>
+                    <Image
+                      src={image.src}
+                      alt={image.alt}
+                      fill
+                      sizes="100vw"
+                      className="object-cover"
+                      data-ai-hint={image.hint}
+                      priority={true}
+                    />
+                  </article>
+                ))}
+              </div>
+            </div>
+
+            <div className="slider-prev-next-control">
+              {galleryImages.map((_, index) => (
+                <label key={`prev-next-${index}`} htmlFor={`slide${index + 1}`}></label>
+              ))}
+            </div>
+
+            <div className="slider-dot-control">
+              {galleryImages.map((_, index) => (
+                <label key={`dot-${index}`} htmlFor={`slide${index + 1}`}></label>
+              ))}
+            </div>
+          </div>
+        </ScrollAnimationWrapper>
+      </div>
+    </section>
+  );
+}

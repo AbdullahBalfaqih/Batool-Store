@@ -1,0 +1,132 @@
+:root {
+    --bg-dark: rgb(33, 31, 26);
+    --accent-blue: rgb(59, 130, 246); /* تم تغيير اللون إلى الأزرق */
+    --shadow-custom: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px;
+}
+
+/* تعريف حركة تعويم هادئة (خيار إضافي لجعلها أكثر سلاسة) */
+@keyframes float-horizontal {
+    0% { transform: translateX(0); }
+    50% { transform: translateX(-6px); }
+    100% { transform: translateX(0); }
+}
+
+/* الحاوية الرئيسية العائمة */
+.fab-container {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 12px;
+    z-index: 1000;
+}
+
+/* الزر الرئيسي */
+.main-fab {
+    width: 60px;
+    height: 60px;
+    background-color: var(--bg-dark);
+    border-radius: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: var(--shadow-custom);
+    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    z-index: 2;
+    transform: rotate(-8deg);
+}
+
+/* تطبيق الحركة على الأيقونة داخل الزر فقط عندما لا يكون الزر مفعلاً */
+.main-fab:not(.active) svg {
+    animation: float-horizontal 2s ease-in-out infinite;
+}
+
+.main-fab:hover {
+    transform: scale(1.1) rotate(0deg);
+}
+
+/* إيقاف الحركة عند التحويم */
+.main-fab:hover svg {
+    animation: none;
+}
+
+/* حالة الزر عند الفتح */
+.main-fab.active {
+    transform: rotate(0deg);
+    background-color: var(--accent-blue); /* استخدام المتغير الجديد */
+}
+
+.main-fab.active svg {
+    animation: none; /* إيقاف الحركة عند الفتح */
+}
+
+.main-fab.active svg path {
+    fill: white;
+}
+
+/* قائمة الخيارات */
+.fab-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px) scale(0.9);
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.fab-container.open .fab-options {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0) scale(1);
+}
+
+/* أزرار الخيارات */
+.option-btn {
+    width: 50px;
+    height: 50px;
+    background-color: var(--bg-dark);
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    box-shadow: var(--shadow-custom);
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.option-btn:hover {
+    transform: scale(1.1) translateX(-5px);
+    background-color: #2a2822;
+}
+
+.option-btn svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--accent-blue); /* استخدام المتغير الجديد */
+}
+
+/* التلميحات (Tooltip) */
+.tooltip {
+    position: absolute;
+    right: 60px;
+    background-color: #333;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    opacity: 0;
+    transform: translateX(10px);
+    transition: all 0.2s;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.option-btn:hover .tooltip {
+    opacity: 1;
+    transform: translateX(0);
+}

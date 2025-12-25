@@ -1,0 +1,96 @@
+
+{
+    "entities": {
+        "Product": {
+            "title": "Product",
+            "type": "object",
+            "description": "Represents a product in the store.",
+            "properties": {
+                "name": { "type": "string", "description": "Name of the product." },
+                "status": { "type": "string", "enum": ["نشط", "مسودة", "غير نشط"], "description": "Status of the product." },
+                "price": { "type": "number", "description": "Price of the product after discount." },
+                "originalPrice": { "type": "number", "description": "Price of the product before discount." },
+                "totalSales": { "type": "number", "description": "Total number of sales." },
+                "createdAt": { "type": "string", "format": "date", "description": "Date of product creation." },
+                "image_url": { "type": "string", "format": "uri", "description": "URL of the product image." },
+                "lens_image_url": { "type": "string", "format": "uri", "description": "URL of the lens-only image." },
+                "category": { "type": "string", "enum": ["عدسات تجميلية", "عدسات طبيه", "نظارات شمسية", "محاليل"], "description": "Category of the product." },
+                "measurements": { "type": "array", "items": { "type": "string" }, "description": "Available measurements for the product." },
+                "usage": { "type": "string", "description": "Recommended usage for the lens (e.g., monthly, daily)." },
+                "brand": { "type": "string", "description": "Brand of the product." },
+                "diameter": { "type": "number", "description": "Lens diameter." },
+                "baseCurve": { "type": "number", "description": "Lens base curve." },
+                "type": { "type": "string", "description": "Type of lens or product." },
+                "description": { "type": "string", "description": "Detailed description of the product." }
+            },
+            "required": ["name", "status", "price", "createdAt", "image_url", "category", "brand"]
+        },
+        "Order": {
+            "title": "Order",
+            "type": "object",
+            "description": "Represents a customer order.",
+            "properties": {
+                "orderId": { "type": "string" },
+                "customerName": { "type": "string" },
+                "customerPhone": { "type": "string", "description": "Customer's phone number for notifications." },
+                "customerAddress": { "type": "string", "description": "Customer's shipping address." },
+                "date": { "type": "string", "format": "date-time" },
+                "status": { "type": "string", "enum": ["تم التسليم", "قيد التجهيز", "تم الشحن", "ملغي"] },
+                "total": { "type": "number" }
+            },
+            "required": ["orderId", "customerName", "date", "status", "total"]
+        },
+        "Customer": {
+            "title": "Customer",
+            "type": "object",
+            "description": "Represents a customer.",
+            "properties": {
+                "name": { "type": "string" },
+                "email": { "type": "string", "format": "email" },
+                "phone": { "type": "string" },
+                "status": { "type": "string", "enum": ["نشط", "غير نشط"] },
+                "totalSpent": { "type": "number" },
+                "city": { "type": "string" }
+            },
+            "required": ["name", "email", "status", "city"]
+        },
+        "SiteSettings": {
+            "title": "SiteSettings",
+            "type": "object",
+            "description": "Represents general site settings.",
+            "properties": {
+                "logoUrl": { "type": "string", "format": "uri" },
+                "galleryImages": { "type": "array", "items": { "type": "string", "format": "uri" } },
+                "currencyImageUrl": { "type": "string", "format": "uri", "description": "URL for the currency symbol image." },
+                "bankAccountImage1Url": { "type": "string", "format": "uri", "description": "URL for the first bank account QR code/image." },
+                "bankAccountImage2Url": { "type": "string", "format": "uri", "description": "URL for the second bank account QR code/image." },
+                "footerImageUrl": { "type": "string", "format": "uri", "description": "URL for the footer image." },
+                "websiteBarcodeImageUrl": { "type": "string", "format": "uri", "description": "URL for the website barcode image." },
+                "solution_image_url": { "type": "string", "format": "uri" },
+                "solution_price": { "type": "number" },
+                "solution_original_price": { "type": "number" }
+            }
+        }
+    },
+    "auth": {
+        "providers": ["password", "anonymous"]
+    },
+    "firestore": {
+        "/products/{productId}": {
+            "schema": { "$ref": "#/entities/Product" },
+            "description": "Stores product information."
+        },
+        "/orders/{orderId}": {
+            "schema": { "$ref": "#/entities/Order" },
+            "description": "Stores customer order information."
+        },
+        "/customers/{customerId}": {
+            "schema": { "$ref": "#/entities/Customer" },
+            "description": "Stores customer information."
+        },
+        "/site_settings/1": {
+            "schema": { "$ref": "#/entities/SiteSettings" },
+            "description": "Stores general site settings like logo and gallery images."
+        }
+    }
+}
