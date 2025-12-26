@@ -4,11 +4,50 @@ import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { useSupabase } from '@/lib/supabase/provider';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
 
 export function Footer() {
   const [footerImageUrl, setFooterImageUrl] = useState<string>('');
   const [isMounted, setIsMounted] = useState(false);
   const { supabase } = useSupabase();
+    const [email, setEmail] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const { toast } = useToast();
+
+    const handleSubscription = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+
+        try {
+            const response = await fetch('/api/subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || 'حدث خطأ ما');
+            }
+
+            toast({
+                title: 'تم الاشتراك بنجاح!',
+                description: 'شكرًا لاشتراكك. تحقق من بريدك الإلكتروني .',
+            });
+            setEmail('');
+
+        } catch (error: any) {
+            toast({
+                variant: 'destructive',
+                title: 'فشل الاشتراك',
+                description: error.message,
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
 
   const fetchSettings = useCallback(async () => {
@@ -104,17 +143,18 @@ export function Footer() {
                             </div>
                         </div>
                     </div>
-
-                    {/* Newsletter (5 columns) */}
-                    <div className="lg:col-span-5 pt-2">
-                        <h3 className="text-xl text-[rgb(253,252,238)] mb-6">اشترك في النشرة البريدية</h3>
-                        <form suppressHydrationWarning className="flex flex-col gap-3 max-w-md">
-                            <input type="email" placeholder="example@email.com" required suppressHydrationWarning
-                                className="input-field w-full h-14 px-4 rounded-lg outline-none focus:ring-1 focus:ring-white/20 transition-all text-right" />
-                            <button type="submit" 
-                                className="relative inline-flex text-lg h-14 items-center justify-center font-bold text-white bg-gradient-to-b from-primary to-blue-700 rounded-[14px] hover:from-primary/80 hover:to-blue-700/80 shadow-md transition-all hover:scale-105 w-full">
-                                اشتراك
-                            </button>
+                      {/* Newsletter (5 columns) */}
+                      <div className="lg:col-span-5 pt-2">
+                          <h3 className="text-xl text-[rgb(253,252,238)] mb-6">اشترك في النشرة البريدية</h3>
+                          <form onSubmit={handleSubscription} className="flex flex-col gap-3 max-w-md">
+                              <input type="email" placeholder="example@email.com" required
+                                  value={email}
+                                  onChange={(e) => setEmail(e.target.value)}
+                                  className="input-field w-full h-14 px-4 rounded-lg outline-none focus:ring-1 focus:ring-white/20 transition-all text-right" />
+                              <button type="submit" disabled={isLoading}
+                                  className="relative inline-flex text-lg h-14 items-center justify-center font-bold text-white bg-gradient-to-b from-primary to-blue-700 rounded-[14px] hover:from-primary/80 hover:to-blue-700/80 shadow-md transition-all hover:scale-105 w-full disabled:opacity-50 disabled:cursor-not-allowed">
+                                  {isLoading ? <Loader2 className="animate-spin" /> : 'اشتراك'}
+                              </button>
                         </form>
                     </div>
                 </div>

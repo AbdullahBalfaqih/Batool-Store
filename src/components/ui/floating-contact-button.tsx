@@ -9,11 +9,11 @@ export function FloatingContactButton() {
     const toggleFab = () => {
         setIsOpen(!isOpen);
     };
-    
+
     // Replace with your actual contact details
-    const phoneNumber = "+967771234567";
-    const whatsappNumber = "967771234567";
-    const emailAddress = "hello@batoollenses.com";
+    const phoneNumber = "+967770256068";
+    const whatsappNumber = "967770256068";
+    const emailAddress = "Addall1001@gmail.com";
 
 
     return (
